@@ -17,76 +17,109 @@ emoji: string;
 };
 
 const achievements: Achievement[] = [
-{
-id: 'first_game',
-title: 'First Game',
-description: 'Complete your first quiz.',
-emoji: '🥉',
-},
-{
-id: 'hot_streak',
-title: 'Hot Streak',
-description: 'Get 3 correct answers in a row.',
-emoji: '🔥',
-},
-{
-id: 'brain_master',
-title: 'Brain Master',
-description: 'Score 5 out of 5 in a quiz.',
-emoji: '🧠',
-},
-{
-id: 'perfect_player',
-title: 'Perfect Player',
-description: 'Complete a perfect quiz.',
-emoji: '🎯',
-},
-{
-id: 'knowledge_seeker',
-title: 'Knowledge Seeker',
-description: 'Play all 6 quiz categories.',
-emoji: '📚',
-},
-{
-id: 'daily_champion',
-title: 'Daily Champion',
-description: 'Complete a Daily Challenge.',
-emoji: '📅',
-},
-{
-id: 'quiz_veteran',
-title: 'Quiz Veteran',
-description: 'Complete 10 quizzes.',
-emoji: '🏆',
-},
+  {
+    id: 'first_game',
+    title: 'First Game',
+    description: 'Complete your first quiz.',
+    emoji: '🎮',
+  },
+  {
+    id: 'hot_streak',
+    title: 'Hot Streak',
+    description: 'Get 3 correct answers in a row.',
+    emoji: '🔥',
+  },
+  {
+    id: 'brain_master',
+    title: 'Brain Master',
+    description: 'Score 5 out of 5 in a quiz.',
+    emoji: '🧠',
+  },
+  {
+    id: 'perfect_player',
+    title: 'Perfect Player',
+    description: 'Complete a perfect quiz.',
+    emoji: '🎯',
+  },
+  {
+    id: 'knowledge_seeker',
+    title: 'Category Explorer',
+    description: 'Play all 10 quiz categories.',
+    emoji: '🧭',
+  },
+  {
+    id: 'category_specialist',
+    title: 'Category Specialist',
+    description: 'Reach a 4/5 average in a category.',
+    emoji: '🔥',
+  },
+  {
+    id: 'category_master',
+    title: 'Category Master',
+    description: 'Reach a 5/5 average in a category.',
+    emoji: '💎',
+  },
+  {
+    id: 'all_rounder',
+    title: 'All-Rounder',
+    description: 'Reach a 3/5 average across all 10 categories.',
+    emoji: '🌍',
+  },
+  {
+    id: 'daily_champion',
+    title: 'Daily Champion',
+    description: 'Complete a Daily Challenge.',
+    emoji: '📅',
+  },
+  {
+    id: 'quiz_veteran',
+    title: 'Quiz Veteran',
+    description: 'Complete 10 quizzes.',
+    emoji: '🏆',
+  },
 ];
 
 export default function AchievementsScreen() {
 const [unlocked, setUnlocked] =
 useState<string[]>([]);
 
+const [playedCategories, setPlayedCategories] =
+useState<string[]>([]);
+
 const loadAchievements = useCallback(
-async () => {
-try {
-const saved =
-await AsyncStorage.getItem(
-'achievements'
-);
+  async () => {
+    try {
+      const saved =
+        await AsyncStorage.getItem(
+          'achievements'
+        );
 
-    if (saved) {
-      setUnlocked(JSON.parse(saved));
-    } else {
-      setUnlocked([]);
+      if (saved) {
+        setUnlocked(JSON.parse(saved));
+      } else {
+        setUnlocked([]);
+      }
+
+      const savedCategories =
+        await AsyncStorage.getItem(
+          'playedCategories'
+        );
+
+      if (savedCategories) {
+        setPlayedCategories(
+          JSON.parse(savedCategories)
+        );
+      } else {
+        setPlayedCategories([]);
+      }
+    } catch (error) {
+      console.log(
+        'Error loading achievements:',
+        error
+      );
     }
-  } catch (error) {
-    console.log(
-      'Error loading achievements:',
-      error
-    );
-  }
-},
-[]
-
+  },
+  []
 );
 
 useFocusEffect(
@@ -152,7 +185,6 @@ onPress={() => router.back()}
           <Text style={styles.progressLabel}>
             ACHIEVEMENT PROGRESS
           </Text>
-
           <Text style={styles.progressTitle}>
             {unlockedCount} of{' '}
             {achievements.length} unlocked
@@ -167,15 +199,29 @@ onPress={() => router.back()}
       </View>
 
       <View style={styles.progressBackground}>
-        <View
-          style={[
-            styles.progressFill,
-            {
-              width:
-                progressPercentage + '%',
-            },
-          ]}
-        />
+        <View style={{ width: `${progressPercentage}%` as `${number}%` }} />
+      </View>
+
+      <View style={styles.categoryProgress}>
+        <View style={styles.categoryProgressTop}>
+          <Text style={styles.categoryProgressText}>
+            {Math.min(playedCategories.length, 10)}/10 categories played
+          </Text>
+          <Text style={styles.categoryProgressPercent}>
+            {Math.round((Math.min(playedCategories.length, 10) / 10) * 100)}%
+          </Text>
+        </View>
+
+        <View style={styles.categoryProgressTrack}>
+          <View
+            style={[
+              styles.categoryProgressFill,
+              {
+                width: `${Math.min(playedCategories.length, 10) * 10}%` as `${number}%`,
+              },
+            ]}
+          />
+        </View>
       </View>
 
       <Text style={styles.progressHint}>
@@ -648,6 +694,42 @@ color: '#4ADE80',
 
 lockedStatus: {
 color: '#64748B',
+},
+
+categoryProgress: {
+marginTop: 12,
+},
+
+categoryProgressTop: {
+flexDirection: 'row',
+justifyContent: 'space-between',
+alignItems: 'center',
+marginBottom: 6,
+},
+
+categoryProgressText: {
+fontSize: 12,
+fontWeight: '600',
+color: '#64748B',
+},
+
+categoryProgressPercent: {
+fontSize: 12,
+fontWeight: '700',
+color: '#2563EB',
+},
+
+categoryProgressTrack: {
+height: 7,
+borderRadius: 4,
+backgroundColor: '#E2E8F0',
+overflow: 'hidden',
+},
+
+categoryProgressFill: {
+height: '100%',
+borderRadius: 4,
+backgroundColor: '#2563EB',
 },
 
 motivationCard: {

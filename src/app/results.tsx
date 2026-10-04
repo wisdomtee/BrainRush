@@ -96,12 +96,17 @@ return {
 
 const message = getScoreMessage();
 
-return ( <ScrollView
-   style={styles.container}
-   contentContainerStyle={styles.contentContainer}
-   showsVerticalScrollIndicator={false}
- >
-{/* HEADER */} <View style={styles.header}> <View style={styles.trophyCircle}> <Text style={styles.trophy}>🏆</Text> </View>
+return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* HEADER */}
+      <View style={styles.header}>
+        <View style={styles.trophyCircle}>
+          <Text style={styles.trophy}>🏆</Text>
+        </View>
 
     <Text style={styles.title}>
       {isDaily

@@ -322,14 +322,13 @@ return ( <SafeAreaView style={styles.container}> <View style={styles.content}> <
 
       <View style={styles.progressBackground}>
         <View
-          style={[
-            styles.progressFill,
-            {
-              width:
-                progressPercentage + '%',
-            },
-          ]}
-        />
+  style={[
+    styles.progressFill,
+    {
+      width: `${progressPercentage}%` as `${number}%`,
+    },
+  ]}
+/>
       </View>
     </View>
 

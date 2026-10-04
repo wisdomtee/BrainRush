@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
+  Pressable,
   Text,
   TouchableOpacity,
   View,
@@ -74,7 +75,25 @@ export default function HomeScreen() {
           Think fast. Answer faster.
         </Text>
       </View>
+<Pressable
+  style={({ pressed }) => [
+    styles.settingsButton,
+    pressed && styles.settingsButtonPressed,
+  ]}
+  onPress={() => router.push('/settings')}
+>
+  <Text style={styles.settingsIcon}>⚙️</Text>
+</Pressable>
 
+<Pressable
+  style={({ pressed }) => [
+    styles.statsButton,
+    pressed && styles.statsButtonPressed,
+  ]}
+  onPress={() => router.push('/stats')}
+>
+  <Text style={styles.statsIcon}>📊</Text>
+</Pressable>
       {/* PLAYER CARD */}
       <View style={styles.playerCard}>
         <View>
@@ -252,7 +271,7 @@ export default function HomeScreen() {
   style={[
     styles.progressFill,
     {
-      width: currentLevelXP + '%',
+      width: `${currentLevelXP}%` as `${number}%`,
     },
   ]}
 />
@@ -570,4 +589,48 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 5,
   },
+
+  settingsButton: {
+  position: 'absolute',
+  top: 20,
+  right: 20,
+  width: 46,
+  height: 46,
+  borderRadius: 23,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: '#0F172A',
+  zIndex: 10,
+},
+
+settingsIcon: {
+  fontSize: 22,
+},
+
+settingsButtonPressed: {
+  transform: [{ scale: 0.94 }],
+  opacity: 0.8,
+},
+
+statsButton: {
+  position: 'absolute',
+  top: 74,
+  right: 20,
+  width: 46,
+  height: 46,
+  borderRadius: 23,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: '#0F172A',
+  zIndex: 10,
+},
+
+statsButtonPressed: {
+  transform: [{ scale: 0.94 }],
+  opacity: 0.8,
+},
+
+statsIcon: {
+  fontSize: 21,
+},
 });

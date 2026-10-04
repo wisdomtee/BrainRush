@@ -8,13 +8,10 @@ import {
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-type Question = {
-  question: string;
-  options: string[];
-  answer: string;
-  explanation: string;
-};
+import { questionBanks, Question, CategoryKey } from '../data/questions';
+import { BackgroundMusic } from '@/components/BackgroundMusic';
+import GameSounds from '@/components/GameSounds';
+import HapticsManager from '@/components/HapticsManager';
 
 type ReviewItem = {
   question: string;
@@ -28,289 +25,6 @@ type Achievement = {
   title: string;
   description: string;
   emoji: string;
-};
-
-type CategoryKey =
-  | 'general'
-  | 'technology'
-  | 'science'
-  | 'math'
-  | 'history'
-  | 'sports';
-
-const questionBanks: Record<CategoryKey, Question[]> = {
-  general: [
-    {
-      question: 'What is the capital of Nigeria?',
-      options: ['Lagos', 'Abuja', 'Kano', 'Ibadan'],
-      answer: 'Abuja',
-      explanation:
-        'Abuja became Nigeria’s capital in 1991, replacing Lagos.',
-    },
-    {
-      question: 'Which planet is known as the Red Planet?',
-      options: ['Earth', 'Mars', 'Jupiter', 'Venus'],
-      answer: 'Mars',
-      explanation:
-        'Mars appears reddish because iron minerals on its surface have oxidized.',
-    },
-    {
-      question: 'How many continents are there?',
-      options: ['5', '6', '7', '8'],
-      answer: '7',
-      explanation:
-        'The seven continents are Africa, Antarctica, Asia, Europe, North America, South America, and Australia.',
-    },
-    {
-      question: 'Which language is mainly used to build React apps?',
-      options: ['Python', 'JavaScript', 'Java', 'C++'],
-      answer: 'JavaScript',
-      explanation:
-        'React is a JavaScript library commonly used to build user interfaces.',
-    },
-    {
-      question: 'What does HTML stand for?',
-      options: [
-        'Hyper Text Markup Language',
-        'High Text Machine Language',
-        'Hyper Transfer Markup Language',
-        'Home Tool Markup Language',
-      ],
-      answer: 'Hyper Text Markup Language',
-      explanation:
-        'HTML is the standard markup language used to structure web pages.',
-    },
-  ],
-
-  technology: [
-    {
-      question: 'What does CPU stand for?',
-      options: [
-        'Central Processing Unit',
-        'Computer Personal Unit',
-        'Central Program Utility',
-        'Computer Processing Utility',
-      ],
-      answer: 'Central Processing Unit',
-      explanation:
-        'The CPU executes instructions and performs calculations for a computer.',
-    },
-    {
-      question: 'Which language is used with React Native?',
-      options: ['JavaScript', 'SQL', 'PHP', 'Ruby'],
-      answer: 'JavaScript',
-      explanation:
-        'React Native uses JavaScript or TypeScript to build cross-platform applications.',
-    },
-    {
-      question: 'What does API stand for?',
-      options: [
-        'Application Programming Interface',
-        'Advanced Program Internet',
-        'Application Process Integration',
-        'Automated Programming Interface',
-      ],
-      answer: 'Application Programming Interface',
-      explanation:
-        'An API defines how different software systems can communicate with each other.',
-    },
-    {
-      question: 'Which company created Android?',
-      options: ['Apple', 'Google', 'Microsoft', 'IBM'],
-      answer: 'Google',
-      explanation:
-        'Google acquired Android Inc. in 2005 and has continued developing the Android platform.',
-    },
-    {
-      question: 'What does HTML describe?',
-      options: [
-        'Web page structure',
-        'Database queries',
-        'Computer hardware',
-        'Network security',
-      ],
-      answer: 'Web page structure',
-      explanation:
-        'HTML provides the structure and content of a web page.',
-    },
-  ],
-
-  science: [
-    {
-      question: 'What gas do humans need to breathe?',
-      options: ['Carbon dioxide', 'Oxygen', 'Hydrogen', 'Nitrogen'],
-      answer: 'Oxygen',
-      explanation:
-        'Humans use oxygen during cellular respiration to help release energy from food.',
-    },
-    {
-      question: 'What is the center of an atom called?',
-      options: ['Electron', 'Nucleus', 'Proton', 'Molecule'],
-      answer: 'Nucleus',
-      explanation:
-        'The nucleus is the dense central part of an atom containing protons and neutrons.',
-    },
-    {
-      question: 'Which planet is closest to the Sun?',
-      options: ['Venus', 'Earth', 'Mercury', 'Mars'],
-      answer: 'Mercury',
-      explanation:
-        'Mercury is the innermost planet in our Solar System.',
-    },
-    {
-      question: 'What force keeps us on the ground?',
-      options: ['Magnetism', 'Gravity', 'Friction', 'Electricity'],
-      answer: 'Gravity',
-      explanation:
-        'Earth’s gravity pulls objects toward its center.',
-    },
-    {
-      question: 'What is H2O commonly called?',
-      options: ['Salt', 'Oxygen', 'Water', 'Hydrogen'],
-      answer: 'Water',
-      explanation:
-        'H2O is the chemical formula for water, made of two hydrogen atoms and one oxygen atom.',
-    },
-  ],
-
-  math: [
-    {
-      question: 'What is 12 × 8?',
-      options: ['86', '96', '108', '88'],
-      answer: '96',
-      explanation: '12 multiplied by 8 equals 96.',
-    },
-    {
-      question: 'What is 100 ÷ 10?',
-      options: ['5', '10', '20', '25'],
-      answer: '10',
-      explanation:
-        'Dividing 100 into 10 equal groups gives 10 in each group.',
-    },
-    {
-      question: 'What is 15 + 27?',
-      options: ['32', '40', '42', '45'],
-      answer: '42',
-      explanation: '15 plus 27 equals 42.',
-    },
-    {
-      question: 'What is 9 × 9?',
-      options: ['72', '81', '90', '99'],
-      answer: '81',
-      explanation: '9 multiplied by 9 equals 81.',
-    },
-    {
-      question: 'What is 50% of 200?',
-      options: ['50', '75', '100', '150'],
-      answer: '100',
-      explanation:
-        '50% means one-half, and half of 200 is 100.',
-    },
-  ],
-
-  history: [
-    {
-      question: 'Who was the first President of Nigeria?',
-      options: [
-        'Nnamdi Azikiwe',
-        'Olusegun Obasanjo',
-        'Abraham Lincoln',
-        'Nelson Mandela',
-      ],
-      answer: 'Nnamdi Azikiwe',
-      explanation:
-        'Nnamdi Azikiwe became Nigeria’s first President in 1963.',
-    },
-    {
-      question:
-        'Which ancient civilization built the pyramids of Giza?',
-      options: ['Romans', 'Egyptians', 'Greeks', 'Mayans'],
-      answer: 'Egyptians',
-      explanation:
-        'The pyramids of Giza were built in ancient Egypt.',
-    },
-    {
-      question: 'Who discovered penicillin?',
-      options: [
-        'Alexander Fleming',
-        'Isaac Newton',
-        'Albert Einstein',
-        'Louis Pasteur',
-      ],
-      answer: 'Alexander Fleming',
-      explanation:
-        'Alexander Fleming discovered penicillin in 1928.',
-    },
-    {
-      question: 'In which country did the Olympic Games originate?',
-      options: ['Italy', 'Greece', 'France', 'Egypt'],
-      answer: 'Greece',
-      explanation:
-        'The ancient Olympic Games originated in ancient Greece.',
-    },
-    {
-      question: 'Who was known as the Maid of Orléans?',
-      options: [
-        'Cleopatra',
-        'Joan of Arc',
-        'Marie Curie',
-        'Queen Victoria',
-      ],
-      answer: 'Joan of Arc',
-      explanation:
-        'Joan of Arc was a French historical figure associated with the siege of Orléans during the Hundred Years’ War.',
-    },
-  ],
-
-  sports: [
-    {
-      question:
-        'How many players are on a football team on the field?',
-      options: ['9', '10', '11', '12'],
-      answer: '11',
-      explanation:
-        'A football team has 11 players on the field during normal play.',
-    },
-    {
-      question:
-        'Which sport uses a racket and shuttlecock?',
-      options: [
-        'Tennis',
-        'Badminton',
-        'Basketball',
-        'Cricket',
-      ],
-      answer: 'Badminton',
-      explanation:
-        'Badminton is played using rackets and a shuttlecock.',
-    },
-    {
-      question: 'How many rings are on the Olympic flag?',
-      options: ['4', '5', '6', '7'],
-      answer: '5',
-      explanation:
-        'The Olympic symbol contains five interlocking rings.',
-    },
-    {
-      question: 'Which sport is played at Wimbledon?',
-      options: ['Football', 'Tennis', 'Golf', 'Rugby'],
-      answer: 'Tennis',
-      explanation:
-        'Wimbledon is one of tennis’s four Grand Slam tournaments.',
-    },
-    {
-      question: 'How long is a standard football match?',
-      options: [
-        '60 minutes',
-        '75 minutes',
-        '90 minutes',
-        '120 minutes',
-      ],
-      answer: '90 minutes',
-      explanation:
-        'A standard football match consists of two 45-minute halves.',
-    },
-  ],
 };
 
 const achievementDetails: Record<string, Achievement> = {
@@ -340,9 +54,9 @@ const achievementDetails: Record<string, Achievement> = {
   },
   knowledge_seeker: {
     id: 'knowledge_seeker',
-    title: 'Knowledge Seeker',
-    description: 'You completed all 6 categories!',
-    emoji: '📚',
+    title: 'Category Explorer',
+    description: 'You played all 10 categories!',
+    emoji: '🧭',
   },
   quiz_veteran: {
     id: 'quiz_veteran',
@@ -350,9 +64,54 @@ const achievementDetails: Record<string, Achievement> = {
     description: 'You completed 10 quizzes!',
     emoji: '🏆',
   },
+
+  category_specialist: {
+    id: 'category_specialist',
+    title: 'Category Specialist',
+    description: 'You reached a 4/5 average in a category!',
+    emoji: '🔥',
+  },
+
+  category_master: {
+  id: 'category_master',
+  title: 'Category Master',
+  description: 'You reached a 5/5 average in a category!',
+  emoji: '💎',
+},
+
+all_rounder: {
+  id: 'all_rounder',
+  title: 'All-Rounder',
+  description: 'You reached a 3/5 average across all 10 categories!',
+  emoji: '🌍',
+},
 };
 
 const TIME_PER_QUESTION = 15;
+
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const copy = [...array];
+
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+
+  return copy;
+};
+
+const createQuizQuestions = (
+  bank: Question[],
+  count = 5
+): Question[] => {
+  return shuffleArray(bank)
+    .slice(0, count)
+    .map((question) => ({
+      ...question,
+      options: shuffleArray(question.options),
+    }));
+};
 
 export default function GameScreen() {
   const { category } = useLocalSearchParams<{
@@ -362,9 +121,81 @@ export default function GameScreen() {
   const selectedCategory =
     (category as CategoryKey) || 'general';
 
-  const questions =
-    questionBanks[selectedCategory] ||
-    questionBanks.general;
+    const [questions, setQuestions] = useState<Question[]>([]);
+const [questionsReady, setQuestionsReady] = useState(false);
+const [soundEffect, setSoundEffect] = useState<
+  'correct' | 'wrong' | 'streak' | 'achievement' | 'complete' | null
+>(null);
+
+const [hapticEffect, setHapticEffect] = useState<
+  'correct' | 'wrong' | 'streak' | 'achievement' | 'complete' | null
+>(null);
+
+useEffect(() => {
+  const loadQuizQuestions = async () => {
+    try {
+      const bank =
+        questionBanks[selectedCategory] ||
+        questionBanks.general;
+
+      const storageKey =
+        `recentQuestions_${selectedCategory}`;
+
+      const savedRecent =
+        await AsyncStorage.getItem(storageKey);
+
+      const recentIds: string[] =
+        savedRecent ? JSON.parse(savedRecent) : [];
+
+      let availableQuestions = bank.filter(
+        (question) => !recentIds.includes(question.id)
+      );
+
+      // If there aren't enough unseen questions,
+      // start using the full bank again.
+      if (availableQuestions.length < 5) {
+        availableQuestions = bank;
+      }
+
+      const selectedQuestions =
+        createQuizQuestions(
+          availableQuestions,
+          5
+        );
+
+      setQuestions(selectedQuestions);
+
+      const newRecentIds = [
+        ...recentIds,
+        ...selectedQuestions.map(
+          (question) => question.id
+        ),
+      ].slice(-5);
+
+      await AsyncStorage.setItem(
+        storageKey,
+        JSON.stringify(newRecentIds)
+      );
+    } catch (error) {
+      console.log(
+        'Failed to load quiz questions:',
+        error
+      );
+
+      const fallback =
+        questionBanks[selectedCategory] ||
+        questionBanks.general;
+
+      setQuestions(
+        createQuizQuestions(fallback, 5)
+      );
+    } finally {
+      setQuestionsReady(true);
+    }
+  };
+
+  loadQuizQuestions();
+}, [selectedCategory]);
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -395,18 +226,23 @@ export default function GameScreen() {
     } | null>(null);
 
   const categoryNames: Record<CategoryKey, string> = {
-    general: 'General Knowledge',
-    technology: 'Technology',
-    science: 'Science',
-    math: 'Mathematics',
-    history: 'History',
-    sports: 'Sports',
-  };
+  general: 'General Knowledge',
+  technology: 'Technology',
+  science: 'Science',
+  math: 'Mathematics',
+  history: 'History',
+  sports: 'Sports',
+  geography: 'Geography',
+  programming: 'Programming',
+  entertainment: 'Entertainment',
+  space: 'Space',
+};
 
   const categoryName =
     categoryNames[selectedCategory];
 
   const question = questions[currentQuestion];
+
 
   const checkAchievements = async (
     finalScore: number,
@@ -420,6 +256,13 @@ export default function GameScreen() {
         saved ? JSON.parse(saved) : [];
 
       const newlyUnlocked: string[] = [];
+
+      const playAchievementSound = () => {
+        setSoundEffect('achievement');
+        setTimeout(() => {
+          setSoundEffect(null);
+        }, 500);
+      };
 
       const unlockIfNew = (
         achievementId: string
@@ -475,8 +318,96 @@ export default function GameScreen() {
         JSON.stringify(playedCategories)
       );
 
-      if (playedCategories.length >= 6) {
+      if (playedCategories.length >= 10) {
         unlockIfNew('knowledge_seeker');
+      }
+
+      const categoryKeys: CategoryKey[] = [
+        'general',
+        'technology',
+        'science',
+        'math',
+        'history',
+        'sports',
+        'geography',
+        'programming',
+        'entertainment',
+        'space',
+      ];
+
+      for (const key of categoryKeys) {
+        const historyKey =
+          'categoryHistory_' + key;
+
+        const history =
+          await AsyncStorage.getItem(
+            historyKey
+          );
+
+        if (history === null) {
+          continue;
+        }
+
+        const scores: number[] =
+          JSON.parse(history);
+
+        if (scores.length === 0) {
+          continue;
+        }
+
+        const average =
+          scores.reduce(
+            (total, value) => total + value,
+            0
+          ) / scores.length;
+
+        if (average >= 5) {
+          unlockIfNew('category_master');
+          unlockIfNew('category_specialist');
+        } else if (average >= 4) {
+          unlockIfNew('category_specialist');
+        }
+
+      }
+
+            const allCategoryAverages: number[] = [];
+
+      for (const key of categoryKeys) {
+        const historyKey =
+          'categoryHistory_' + key;
+
+        const history =
+          await AsyncStorage.getItem(
+            historyKey
+          );
+
+        if (history === null) {
+          continue;
+        }
+
+        const scores: number[] =
+          JSON.parse(history);
+
+        if (scores.length === 0) {
+          continue;
+        }
+
+        const average =
+          scores.reduce(
+            (total, value) => total + value,
+            0
+          ) / scores.length;
+
+        allCategoryAverages.push(average);
+      }
+
+      if (
+        allCategoryAverages.length === 10 &&
+        allCategoryAverages.every(
+          (average) => average >= 3
+        )
+      ) {
+        unlockIfNew('all_rounder');
       }
 
       const currentGames =
@@ -494,6 +425,10 @@ export default function GameScreen() {
         'achievements',
         JSON.stringify(existingAchievements)
       );
+
+      if (newlyUnlocked.length > 0) {
+        playAchievementSound();
+      }
 
       return newlyUnlocked
         .map(
@@ -654,19 +589,51 @@ export default function GameScreen() {
     finalBestStreak: number,
     finalReview: ReviewItem[]
   ) => {
+    setSoundEffect('complete');
+
+    setTimeout(() => {
+      setSoundEffect(null);
+    }, 500);
+
     await saveGameStats(
-      finalScore,
-      finalBestStreak
-    );
+  finalScore,
+  finalBestStreak
+);
 
-    await saveLeaderboardScore(
-      finalScore
-    );
+const savedScoreHistory =
+  await AsyncStorage.getItem('scoreHistory');
 
-    await AsyncStorage.setItem(
-      'lastQuizReview',
-      JSON.stringify(finalReview)
-    );
+const scoreHistory: number[] =
+  savedScoreHistory
+    ? JSON.parse(savedScoreHistory)
+    : [];
+
+scoreHistory.push(finalScore);
+
+await AsyncStorage.setItem(
+  'scoreHistory',
+  JSON.stringify(scoreHistory)
+);
+
+const categoryHistoryKey =
+  `categoryHistory_${selectedCategory}`;
+
+const savedCategoryHistory =
+  await AsyncStorage.getItem(
+    categoryHistoryKey
+  );
+
+const categoryHistory: number[] =
+  savedCategoryHistory
+    ? JSON.parse(savedCategoryHistory)
+    : [];
+
+categoryHistory.push(finalScore);
+
+await AsyncStorage.setItem(
+  categoryHistoryKey,
+  JSON.stringify(categoryHistory)
+);
 
     const unlocked =
       await checkAchievements(
@@ -746,11 +713,40 @@ export default function GameScreen() {
     );
 
     const correct =
-      answer === question.answer;
+  answer === question.answer;
 
-    if (correct) {
-      const newScore = score + 1;
-      const newStreak = streak + 1;
+setSoundEffect(
+  correct ? 'correct' : 'wrong'
+);
+
+setHapticEffect(
+  correct ? 'correct' : 'wrong'
+);
+
+setTimeout(() => {
+  setSoundEffect(null);
+}, 500);
+
+setTimeout(() => {
+  setHapticEffect(null);
+}, 500);
+
+if (correct) {
+  const newScore = score + 1;
+  const newStreak = streak + 1;
+
+      if (newStreak >= 3) {
+  setSoundEffect('streak');
+  setHapticEffect('streak');
+
+  setTimeout(() => {
+    setSoundEffect(null);
+  }, 500);
+
+  setTimeout(() => {
+    setHapticEffect(null);
+  }, 500);
+}
 
       const newBestStreak = Math.max(
         bestStreak,
@@ -873,13 +869,29 @@ export default function GameScreen() {
       clearInterval(timer);
   }, [timeLeft, selected]);
 
+  if (!questionsReady || !question) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>
+          Preparing your questions...
+        </Text>
+      </View>
+    );
+  }
+
+
   const answeredCorrectly =
     selected === question.answer;
 
   const timerIsLow = timeLeft <= 5;
 
   return (
-    <View style={styles.container}>
+  <View style={styles.container}>
+    <GameSounds sound={soundEffect} />
+
+<HapticsManager type={hapticEffect} />
+
+<BackgroundMusic playing={true} />
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
@@ -934,18 +946,10 @@ export default function GameScreen() {
 
         <View style={styles.progressContainer}>
           <View
-            style={[
-              styles.progress,
-              {
-                width:
-                  (
-                    ((currentQuestion + 1) /
-                      questions.length) *
-                    100
-                  ) + '%',
-              },
-            ]}
-          />
+  style={{
+    width: `${((currentQuestion + 1) / questions.length) * 100}%` as `${number}%`,
+  }}
+/>
         </View>
 
         {/* STATS */}
@@ -1000,8 +1004,8 @@ export default function GameScreen() {
                 selected === option;
 
               const isCorrect =
-                !!selected &&
-                option === question.answer;
+  selected === question.answer;
+
 
               const isWrong =
                 isSelected &&
@@ -1714,4 +1718,18 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     marginLeft: 8,
   },
+
+  loadingContainer: {
+  flex: 1,
+  backgroundColor: '#0F172A',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingHorizontal: 24,
+},
+
+loadingText: {
+  color: '#FFFFFF',
+  fontSize: 16,
+  fontWeight: '700',
+},
 });
